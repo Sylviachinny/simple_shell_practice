@@ -25,6 +25,7 @@ bool is_empty(const char *str)
  */
 void print_prompt(int is_interactive)
 {
+	is_interactive = isatty(STDIN_FILENO);
 	if (isatty(is_interactive))
 	{
 		write(STDOUT_FILENO, "my_shell$ ", 10);
