@@ -35,7 +35,7 @@ void handle_child(char *line_copy, char **arg_es, int token_count)
 			cd_command(arg_es[1]);
 		}
 
-		if (_strcmp(av[0], "exit") == 0)
+		if (_strcmp(arg_es[0], "exit") == 0)
 		{
 			shell_exit(arg_es[0], arg_es[1]);
 		}
@@ -78,7 +78,7 @@ int handle_builtin_command(char *command_exec, char **argu)
 		{
 			if (getcwd(current_dir, sizeof(current_dir)) != NULL)
 			{
-				write(STOUT_FILENO, current_dir, _strlen(current_dir));
+				write(STDOUT_FILENO, current_dir, _strlen(current_dir));
 				write(STDOUT_FILENO, "\n", 1);
 			}
 		}

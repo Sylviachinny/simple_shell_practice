@@ -47,7 +47,7 @@ void exec(char **arg_es)
 	char *command_exec = NULL;
 	char *cmd_path = NULL;
 
-	if (arg != NULL)
+	if (arg_es != NULL)
 	{
 		command_exec = arg_es[0];
 		cmd_path = handle_path(command_exec);
@@ -82,7 +82,7 @@ void *handle_path(char *cmd)
 			if (stat(cmd_path, &st) == 0)
 				return (cmd_path);
 			free(cmd_path);
-			}
+		}
 	}
-	return (NULL)
+	return (NULL);
 }

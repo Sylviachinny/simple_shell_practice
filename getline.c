@@ -26,16 +26,16 @@ void init_buffer(char **buf_es, size_t *size)
  */
 ssize_t read_into_buffer(char *buf_es, size_t length, FILE *stream)
 {
-	ssize_t read;
+	ssize_t read_r;
 
-	read = read(fileno(stream), buf_es, length);
+	read_r = read(fileno(stream), buf_es, length);
 
-	if (read == -1)
+	if (read_r == -1)
 	{
 		perror("read");
 		return (-1);
 	}
-	return (read);
+	return (read_r);
 }
 
 /**
@@ -48,15 +48,15 @@ void expand_buffer(char **buf_es, size_t *length)
 {
 	char *new_buf_es;
 
-	new_buf_es = realloc(*buf_es, length + READ_SIZE_INCREMENT);
+	new_buf_es = realloc(*buf_es, *length + READ_SIZE_INCREMENT);
 
 	if (new_buf_es == NULL)
 	{
 		perror("realloc");
-		free(*buffer);
+		free(*buf_es);
 		exit(EXIT_FAILURE);
 	}
-	*buffer = new_buf_es;
+	*buf_es = new_buf_es;
 	*length += READ_SIZE_INCREMENT;
 }
 
@@ -113,11 +113,11 @@ ssize_t my_getline(char **buf_es, size_t *length, FILE *stream)
 
 	if (buf_es == NULL || *length == 0)
 	{
-		init_buffer(buf_es, len);
+		init_buffer(buf_es, length);
 	}
 
 	fflush(stdout);
-	read = read_into_buffer(*buffer, *length, stream);
+	read = read_into_buffer(*buf_es, *length, stream);
 	if (read == 0)
 	{
 		free(*buf_es);

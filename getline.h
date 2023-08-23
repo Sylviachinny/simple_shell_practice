@@ -12,9 +12,9 @@
 
 /*prototypes*/
 void init_buffer(char **buf_es, size_t *size);
-ssize_t read_into_buffer(char buf_es, size_t length, FILE *stream);
+ssize_t read_into_buffer(char *buf_es, size_t length, FILE *stream);
 void expand_buffer(char **buf_es, size_t *length);
-ssize_t perform_getline(char **buf_es, size_t len, size_t *index, ssize_t r);
-ssize_t my_getline(char *buf_es, size_t *length, FILE *stream);
+ssize_t perform_getline(char *buf_es, size_t len, size_t *index, ssize_t r);
+ssize_t my_getline(char **buf_es, size_t *length, FILE *stream);
 
 #endif /*GETLINE_H*/

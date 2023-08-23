@@ -62,7 +62,7 @@ char *_getenv(const char *name)
 		env_name = *env;
 		delimeter = _strchr(env_name, '=');
 
-		if (delimiter != NULL)
+		if (delimeter != NULL)
 		{
 			name_len = (size_t)(delimeter - env_name);
 			if (_strlen(name) == name_len && _strncmp(env_name, name, name_len) == 0)

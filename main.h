@@ -33,6 +33,7 @@ int _strcmp(char *s1, char *s2);
 int _strncmp(const char *s1_es, const char *s2_es, size_t n);
 int _isspace(int c);
 bool is_empty(const char *str);
+void print_prompt(int is_interactive);
 
 /*global variables*/
 extern char **environ;
@@ -52,7 +53,7 @@ s_strtok;
 /*strtok function*/
 char *my_token(char *str, const char *delim);
 /*setenv function*/
-int _setenv(const char *name, char char *value);
+int _setenv(const char *name, const char *value);
 /*Unsetenv function*/
 int _unsetenv(const char *name);
 /*change directory*/
@@ -65,7 +66,7 @@ int handle_builtin_command(char *command_exec, char **argu);
 char *path_convert(const char *path, const char *cmd);
 /*Helper function for cd*/
 int cmd_helper(char *current_direc, const char *dir);
-int change_direct(const char *dir);
+int change_direc(const char *dir);
 int get_working_dir(const char *dir);
 
 

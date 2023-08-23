@@ -45,10 +45,10 @@ void shell_env(void)
  * @value: value of the variable
  * Return: 0 on success, -1 on failure
  */
-int _setenv(const char *name, *const char *value)
+int _setenv(const char *name, const char *value)
 {
 	int length = 0;
-	char *new_string = NULL, *existing = NULL;
+	char *new_string = NULL;
 
 	length = _strlen(name) + _strlen(value) + 2;
 	new_string = malloc(sizeof(char) * length);
