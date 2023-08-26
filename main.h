@@ -21,12 +21,10 @@
 #define OUT 0
 
 /*prototypes*/
-void exec(char **arg_es, char **arg, char *buf_es, int count);
-void *handle_path(char *cmd);
-void check_builtin(char **av,, char *buf_es, __attribute__((unused)), int count);
+int exec(char **arg_es, char **arg, char *buf_es, int count);
+int check_builtin(char **av, char *buf_es __attribute__((unused)), int count);
 void print_env(void);
-void *handle_path(char *cmd);
-void shell_env(void);
+void *handle_path(char **cmd);
 void handle_ctrl_c(int sig __attribute__((unused)));
 void free_all(const unsigned int n, ...);
 void free_arg(char **arr);
@@ -42,9 +40,13 @@ int prompt(char ** buf_es);
 int _strcmp(char *s1, char *s2);
 int _strncmp(const char *s1_es, const char *s2_es, size_t n);
 int _isspace(int c);
-bool is_empty(const char *str);
-int main(int argc_es, __attribute__((unused)), char **av_es);
-void print_prompt(int is_interactive);
+int main(int argc_es __attribute__((unused)), char **av_es);
+void printerror(char **av_es, int count, char **arg_es);
+int word_counter(char *str, char *seperator);
+char *_strdup(char *str);
+char *path_initialize(char **pwd);
+char *_strstr(const char *haystack, const char *needle);
+int write_error_stderr(int error);
 
 /*global variables*/
 extern char **environ;
@@ -70,18 +72,10 @@ int _unsetenv(const char *name);
 /*change directory*/
 char *check_working_dir(char **pwd, char **path);
 char *path_convert(char *pwd, char *path);
-/*Handle child function*/
-void handle_child(char *line_copy, char **arg_es, int token_count);
-/*handle builtin command*/
-int handle_builtin_command(char *command_exec, char **argu);
-/*handle path conversion*/
-char *path_convert(const char *path, const char *cmd);
 /*Helper function for cd*/
 int cmd_helper(char *current_direc, const char *dir);
 int change_direc(const char *dir);
 int get_working_dir(const char *dir);
 int simple_shell_loop(char **argv, int count);
 
-
-
-#endif/*MAIN_H*/
+#endif /*MAIN_H*/

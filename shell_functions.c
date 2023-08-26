@@ -46,7 +46,7 @@ char *my_token(char *str, const char *delim)
  * @count: number of commands
  * Return: 0 0n success, 1 on failure
  */
-void exec(char **arg_es, char **arg, char *buf_es, int count)
+int exec(char **arg_es, char **arg, char *buf_es, int count)
 {
 	pid_t pid;
 	int status;
@@ -81,13 +81,13 @@ void exec(char **arg_es, char **arg, char *buf_es, int count)
  * @cmd: command
  * Return: pointer to the path
  */
-void *handle_path(char *cmd)
+void *handle_path(char **cmd)
 {
-	char **arr = NULL, *path, *pwd, *str, *dir;
+	char **arr = NULL, *path = NULL, *pwd = NULL, *str, *dir;
 	unsigned int b = 0, c = 0, length = 0;
 	struct stat st;
 
-	if (cmd != NULL)
+	if (cmd == NULL)
 		return (NULL);
 	pwd = _strdup(_getenv("PWD"));
 	if (pwd == NULL)
@@ -134,45 +134,45 @@ void *handle_path(char *cmd)
  */
 int simple_shell_loop(char **argv, int count)
 {
-	char *buff = NULL, **args = NULL;
+	char *buff_es = NULL, **args = NULL;
 	ssize_t val;
 
-	if (prompt(&buf_es) == -1)
+	if (prompt(&buff_es) == -1)
 	{
-		free_all(1, buff);
+		free_all(1, buff_es);
 		return (1);
 	}
-	args = argument_separator(buff, " ;"), count++;
-	if (arg[0] == NULL)
+	args = argument_separator(buff_es, " ;"), count++;
+	if (args[0] == NULL)
 	{
-		free_all(1, buf_es), free_arg(args);
+		free_all(1, buff_es), free_arg(args);
 		return (1);
 	}
 	if (args[0][0] != '/' && args[0][0] != '.')
 	{
-		val = check_builtin(args, buf_es, count);
+		val = check_builtin(args, buff_es, count);
 		if (val == 0 || val == 2)
 		{
-			free_all(1, buf_es), free_arg(args), val == 0 ? (val = 0) : (val = 1);
+			free_all(1, buff_es), free_arg(args), val == 0 ? (val = 0) : (val = 1);
 			return (val);
 		}
 		if (!(handle_path(&args[0])))
 		{
-			printerror(argv, count, args), free_all(1, buff), free_arg(args);
+			printerror(argv, count, args), free_all(1, buff_es), free_arg(args);
 			return (2);
 		}
 		else
 		{
-			exec(argv, args, buf_es, count), free_all(2, *args, buf_es), free_arg(args);
+			exec(argv, args, buff_es, count), free_all(2, *args, buff_es), free_arg(args);
 			return (0);
 		}
 	}
-	if (exec(argv, args, buf_es, count) == 0)
+	if (exec(argv, args, buff_es, count) == 0)
 	{
-		free_all(1, buf_es), free_arg(args);
+		free_all(1, buff_es), free_arg(args);
 		return (2);
 	}
-	free_all(1, buf_es), free_arg(args);
+	free_all(1, buff_es), free_arg(args);
 	return (0);
 }
 
@@ -201,6 +201,14 @@ char **argument_separator(char *buf_es, char *separator)
 			break;
 		arr[b++] = token;
 		token = my_token(NULL, separator);
+
+		if (b != 0)
+	    {
+		    length = _strlen(arr[b - 1]);
+		    if (arr[b - 1][length - 1] == '\n')
+			    arr[b - 1][length - 1] = '\0';
+	    }
 	}
+	arr[b] = NULL;
 	return (arr);
 }

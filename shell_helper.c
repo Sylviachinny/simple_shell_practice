@@ -31,7 +31,7 @@ int prompt(char **buf_es)
 
 	if (is_interactive != 0)
 		write(STDOUT_FILENO, "my_shell$ ", 10);
-	nread = my_getline(buf_es, &size, stdin)
+	nread = my_getline(buf_es, &size, stdin);
 		return (nread);
 }
 

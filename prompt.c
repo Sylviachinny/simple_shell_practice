@@ -8,7 +8,7 @@
  * @__attribute__((unused)): unused  variable
  * Return: 0 on success, 1 on failure
  */
-int main(int argc_es, __attribute__((unused)), char **av_es)
+int main(int argc_es __attribute__((unused)), char **av_es)
 {
 	int count = 0, status, ret_val;
 	pid_t child;

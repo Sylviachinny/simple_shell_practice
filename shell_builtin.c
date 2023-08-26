@@ -6,11 +6,11 @@
  * @count: number of commands
  * Return: 0 if builtin, 1 if not
  */
-void check_builtin(char **av, char *buf_es, __attribute__((unused)), int count)
+int check_builtin(char **av, char *buf_es, int count __attribute__((unused)))
 {
 	if (av && buf_es)
 	{
-		if (_strcmp("env", av[0] == 0 && _strlen(av[0]) == 3)
+		if (_strcmp("env", av[0]) == 0 && _strlen(av[0]) == 3)
 			{
 				print_env();
 				return (0);
