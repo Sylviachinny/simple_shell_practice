@@ -1,39 +1,37 @@
 #include "main.h"
 /**
- * shell_exit - exits the shell
- * @exit_the_shell: string to compare with exit
- * @arg_es: arguments
- * Return: void
+ * check_builtin - checks if the command is a builtin
+ * @av: array of arguments
+ * @buf_es: buffer to free
+ * @count: number of commands
+ * Return: 0 if builtin, 1 if not
  */
-void shell_exit(char *exit_the_shell, char *arg_es)
+void check_builtin(char **av, char *buf_es, __attribute__((unused)), int count)
 {
-	int status;
-
-	if (strcmp(exit_the_shell, "exit") == 0)
+	if (av && buf_es)
 	{
-		if (arg_es != NULL)
-		{
-			status = atoi(arg_es);
-		}
-		else
-		{
-			status = 0;
-		}
-		exit(status);
+		if (_strcmp("env", av[0] == 0 && _strlen(av[0]) == 3)
+			{
+				print_env();
+				return (0);
+			}
+			else if (_strcmp("exit", av[0]) == 0 && _strlen(av[0]) == 4)
+			return (2);
 	}
+	return (1);
 }
 
 /**
- * shell_env - prints the environment
+ * print_env - prints the environment
  * Return: void
  */
-void shell_env(void)
+void print_env(void)
 {
 	int z = 0;
 
 	while (environ[z] != NULL)
 	{
-		write(STDOUT_FILENO, environ[z], strlen(environ[z]));
+		write(STDOUT_FILENO, environ[z], _strlen(environ[z]));
 		write(STDOUT_FILENO, "\n", 1);
 		z++;
 	}

@@ -112,6 +112,6 @@ int _strncmp(const char *s1_es, const char *s2_es, size_t n)
 */
 int _isspace(int c)
 {
-    return (c == ' ' || c == '\t' || c == '\n' ||
-            c == '\v' || c == '\f' || c == '\r');
+	return (c == ' ' || c == '\t' || c == '\n' ||
+			c == '\v' || c == '\f' || c == '\r');
 }

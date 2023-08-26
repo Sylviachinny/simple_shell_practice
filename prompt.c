@@ -1,85 +1,44 @@
 #include "main.h"
 #include "getline.h"
+
 /**
- * main _helper - helper function for main
- * @av: argument vector
- * @size: size
- * @nread: number of bytes read
- * Return: 0 on success, -1 on failure
+ * main - main function
+ * @argc_es: number of arguments
+ * @av_es: arguments
+ * @__attribute__((unused)): unused  variable
+ * Return: 0 on success, 1 on failure
  */
-int main_helper(char **av, size_t size, ssize_t nread)
+int main(int argc_es, __attribute__((unused)), char **av_es)
 {
-	char *lineptr = NULL, *line_copy, *token, delim[] = " ";
-	int token_count,  p, is_interactive;
-	is_interactive = isatty(STDIN_FILENO);
-	print_prompt(is_interactive);
+	int count = 0, status, ret_val;
+	pid_t child;
+
+	signal(SIGINT, handle_ctrl_c);
 
 	while (1)
 	{
-		nread = my_getline(&lineptr, &size, stdin);
-		if (nread == -1 || nread == EOF)
+		ret_val = simple_shell_loop(av_es, count);
+		if (ret_val == 2)
 		{
-			free(lineptr);
-			return (-1);
-		}
-		if (is_empty(lineptr))
-		{
-			print_prompt(is_interactive);
-			continue;
-		}
-		line_copy = malloc(sizeof(char) * nread + 1);
-		if (line_copy == NULL)
-		{
-			perror("malloc");
-			free(lineptr);
-			exit(EXIT_FAILURE);
-		}
-		_strcpy(line_copy, lineptr);
-		token = my_token(line_copy, delim);
-		token_count = 0;
-		while (token != NULL)
-		{
-			token = my_token(NULL, delim);
-			token_count++;
-		}
-		av = malloc(sizeof(char *) * (token_count + 1));
-		if (av == NULL)
-		{
-			free(line_copy);
-			return (-1);
-		}
-		token = my_token(lineptr, delim);
-		for (p = 0; p < token_count && token != NULL; p++)
-		{
-			av[p] = malloc(sizeof(char) * _strlen(token) + 1);
-			if (av[p] == NULL)
+			count++;
+			child = fork();
+
+			if (child == -1)
 			{
-				free(line_copy);
-				free(av);
-				return (-1);
+				perror("Error");
+				exit(EXIT_FAILURE);
 			}
-			_strcpy(av[p], token);
-			token = my_token(NULL, delim);
+			else if (child != 0)
+			{
+				wait(&status);
+				return (127);
+			}
+			else
+				continue;
 		}
-		av[p] = NULL;
-		handle_child(line_copy, av, token_count);
-		print_prompt(is_interactive);
+		if (ret_val != 0)
+			break;
+		count++;
 	}
-	free(lineptr);
-	exit(EXIT_SUCCESS);
-}
-
-/**
- * main - main function of the shell
- * @ac: argument count
- * @av: argument vector
- * Return: 0 on success
- */
-int main(int ac __attribute__((unused)), char **av)
-{
-	ssize_t nread = 0;
-	size_t size = 0;
-
-	main_helper(av, size, nread);
 	return (0);
 }
