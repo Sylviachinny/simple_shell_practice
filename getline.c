@@ -1,130 +1,135 @@
 #include "getline.h"
+#include "main.h"
 
 /**
- * init_buffer - initialize buffer
- * @buf_es: buffer
- * @size: size of buffer
- * Return: void
+ * _getline_append - appends input to line
+ * @buff: buffer
+ * @line: line
+ * @size: line size
+ * @n: number of character to copy
+ * Return: pointer to the line input
  */
-void init_buffer(char **buf_es, size_t *size)
+static char *_getline_append(buff_s *buff, char **line, size_t *size, size_t n)
 {
-	*buf_es = malloc(READ_SIZE);
-	if (*buf_es == NULL)
+	char *ptr = NULL;
+
+	if (*line)
+		ptr = _realloc(*line, *size, *size + n);
+	else
+		ptr = malloc(n + 1);
+
+	if (ptr)
 	{
-		perror("malloc");
-		exit(EXIT_FAILURE);
+		*line = ptr;
+		if (*size)
+			*size -= 1;
+
+		_memcpy(*line + *size, buff->next, n);
+		*size += n;
+
+		(*line)[*size] = '\0';
+		*size += 1;
 	}
-	*size = READ_SIZE;
+	else
+	{
+		free_all(1, *line);
+		*line = NULL;
+		*size = 0;
+	}
+	return (*line);
 }
 
 /**
- * read_into_buffer - read into buffer
- * @buf_es: buffer
- * @length: length of buffer
- * @stream: stream
- * Return: ssize_t
+ * _getline_buff - delete, get, and create
+ * @table: table
+ * @fd: file descriptor
+ * Return: NULL or pointer associated with fd
  */
-ssize_t read_into_buffer(char *buf_es, size_t length, FILE *stream)
+static buff_s *_getline_buff(buf_node_table *table, const int fd)
 {
-	ssize_t read_r;
+	buff_hash_tables_t *node = NULL;
+	size_t hsh_index = fd % BUFF_TABLE_SIZE;
 
-	read_r = read(fileno(stream), buf_es, length);
-
-	if (read_r == -1)
+	if (table)
 	{
-		perror("read");
-		return (-1);
-	}
-	return (read_r);
-}
-
-/**
- * expand_buffer - expand buffer
- * @buf_es: buffer
- * @length: length of buffer
- * Return: void
- */
-void expand_buffer(char **buf_es, size_t *length)
-{
-	char *new_buf_es;
-
-	new_buf_es = realloc(*buf_es, *length + READ_SIZE_INCREMENT);
-
-	if (new_buf_es == NULL)
-	{
-		perror("realloc");
-		free(*buf_es);
-		exit(EXIT_FAILURE);
-	}
-	*buf_es = new_buf_es;
-	*length += READ_SIZE_INCREMENT;
-}
-
-/**
- * perform_getline - perform getline
- * @buf_es: buffer
- * @len: length of buffer
- * @index: index
- * @r: read
- * Return: ssize_t
- */
-ssize_t perform_getline(char *buf_es, size_t len, size_t *index, ssize_t r)
-{
-	size_t char_read = 0;
-	size_t total_r;
-
-	total_r = r;
-	*index = 0;
-
-	while (*index < total_r && r != 0)
-	{
-		if (buf_es[*index] == '\n')
+		if (fd < 0)
 		{
-			buf_es[*index] = '\0';
-			return (char_read);
+			for (hsh_index = 0; hsh_index < BUFF_TABLE_SIZE; hsh_index++)
+			{
+				while ((node = (*table)[hsh_index]))
+				{
+					(*table)[hsh_index] = node->next;
+					free_all(1, node);
+				}
+			}
 		}
-
-		if (*index == len - 1)
+		else
 		{
-			expand_buffer(&buf_es, &len);
+			node = (*table)[hsh_index];
+			while (node && node->fd != fd)
+				node = node->next;
+			if (node == NULL)
+			{
+				node = malloc(sizeof(*node));
+				if (node)
+				{
+					node->fd = fd;
+					node->buf.next = NULL;
+					node->buf.left_proc = 0;
+					node->next = (*table)[hsh_index];
+					(*table)[hsh_index] = node;
+				}
+			}
 		}
-
-		(*index)++;
-		char_read++;
 	}
-
-	*index = 0;
-	total_r = 0;
-
-	return (char_read);
+	return (node ? &node->buf : NULL);
 }
 
 /**
- * my_getline - get line
- * @buf_es: buffer
- * @length: length of buffer
- * @stream: stream
- * Return: ssize_t
+ * my_getline - input
+ * @fd: file descriptor
+ * Return: line input
  */
-ssize_t my_getline(char **buf_es, size_t *length, FILE *stream)
+char *my_getline(const int fd)
 {
-	static size_t index;
-	ssize_t read, char_read = 0;
+	static buf_node_table table;
+	buff_s *buff_se = _getline_buff(&table, fd);
+	char *line = NULL;
+	size_t size = 0;
+	ssize_t endOfLine = 0, numRead = 0;
 
-	if (buf_es == NULL || *length == 0)
+	if (buff_se)
 	{
-		init_buffer(buf_es, length);
+		do {
+			if (buff_se->left_proc == 0)
+				buff_se->next = buff_se->buffer;
+			if (numRead)
+				buff_se->left_proc = numRead;
+			if (buff_se->left_proc)
+			{
+				endOfLine = _memchr(buff_se->next, '\n', buff_se->left_proc);
+				if (endOfLine == -1)
+				{
+					if (_getline_append(buff_se, &line, &size, buff_se->left_proc))
+						buff_se->next += buff_se->left_proc, buff_se->left_proc = 0;
+					else
+						break;
+				}
+				else
+				{
+					if (_getline_append(buff_se, &line, &size, endOfLine + 1))
+						buff_se->next += endOfLine + 1;
+					break;
+				}
+			}
+		}
 	}
-
-	fflush(stdout);
-	read = read_into_buffer(*buf_es, *length, stream);
-	if (read == 0)
-	{
-		free(*buf_es);
-		*buf_es = NULL;
-		*length = 0;
-		return (-1);
-	}
-	char_read = perform_getline(*buf_es, *length, &index, read);
-	return (char_read);
+	while ((numRead = read(fd, buff_se->buffer, BUFFER_SIZE)) > 0)
+		if (numRead == -1)
+		{
+			free_all(1, line);
+			line = NULL;
+			size = 0;
+		}
+	return (line);
 }

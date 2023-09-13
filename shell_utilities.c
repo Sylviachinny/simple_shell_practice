@@ -1,105 +1,103 @@
 #include "main.h"
 
 /**
- * _strchr - locates a character in a string
- * @s: string to be searched
- * @c: character to be located
- * Return: pointer to the first occurence of the character c in the string
- */
-char *_strchr(const char *s, int c)
-{
-	int e;
-
-	for (e = 0; s[e] != '\0'; e++)
-	{
-		if (s[e] == c)
-			return ((char *)(s + e));
-	}
-	return (NULL);
-}
-
-/**
- * str_pointer_break - breakes a string into tokens
- * @str1: string to be tokenized
- * @str2: delimiter
- * Return: pointer to the first occurrence of the delimiter
- */
-char *str_pointer_break(char *str1, const char *str2)
-{
-	int e, q;
-
-	for (e = 0; str1[e] != '\0'; e++)
-	{
-		q = 0;
-		while (str2[q] != '\0')
-		{
-			if (str1[e] == str2[q])
-			{
-				return (str1 + e);
-			}
-			q++;
-		}
-	}
-	return (NULL);
-}
-
-/**
- * _getenv - gets an environment variable
- * @name: name of the environment variable
- * Return: pointer to the value of the environment variable
- * or NULL if there is no match
- */
-char *_getenv(const char *name)
-{
-	char **env;
-	char *env_name, *delimeter;
-	size_t name_len;
-
-	if (name == NULL || name[0] == '\0')
-		return (NULL);
-	for (env = environ; *env != NULL; env++)
-	{
-		env_name = *env;
-		delimeter = _strchr(env_name, '=');
-
-		if (delimeter != NULL)
-		{
-			name_len = (size_t)(delimeter - env_name);
-			if (_strlen(name) == name_len && _strncmp(env_name, name, name_len) == 0)
-			{
-				return (delimeter + 1);
-			}
-		}
-	}
-	return (NULL);
-}
-
-/**
- * _strcpy - copies the string pointed to by src to dest
- * @dest: destination string
+ * _strcat - concatenates two strings
+ * @dest_a: destination string
  * @src: source string
- * Return: pointer to dest
+ * Return: pointer to the resulting string destination
  */
-char *_strcpy(char *dest, const char *src)
+char *_strcat(char *dest_a, const char *src)
 {
-	int e;
+	int e, length = _strlen(dest_a);
 
 	for (e = 0; src[e] != '\0'; e++)
-		dest[e] = src[e];
-	dest[e] = src[e];
-	return (dest);
+		dest_a[length + e] = src[e];
+	dest_a[length + e] = src[e];
+	return (dest_a);
 }
 
 /**
- * _strlen - returns the length of string
- * @s: string to be  measured
- * Return: length of the string
+ * _memchr - memory character
+ * @s: character to array of string to search
+ * @c: character to search
+ * @n: size of array of string
+ * Return: pointer to the first occurrence
+ * of the found character
  */
-size_t _strlen(const char *s)
+ssize_t _memchr(const void *s, int c, size_t n)
 {
-	int len;
+	unsigned char *str = (unsigned char *)s;
+	size_t iterator;
 
-	for (len = 0; s[len] != '\0'; len++)
-		;
-	return (len);
+	if (str)
+	{
+		for (iterator = 0; iterator < n; iterator++)
+		{
+	if (str[iterator] == (unsigned char)c)
+	{
+		return (iterator);
+	}
+		}
+	}
+	return (-1);
+}
+
+/**
+ * _strcmp - function that compare two strings
+ * @s1: the first string to compare
+ * @s2: The second string to compare
+ * Return: s1 - s2
+ */
+int _strcmp(char *s1, char *s2)
+{
+	int e;
+
+	for (e = 0; s1[e] && s2[e]; e++)
+	{
+		if (s1[e] != s2[e])
+		{
+			return (s1[e] - s2[e]);
+		}
+	}
+	return (s1[e] - s2[e]);
+}
+
+/**
+ * _strncmp - compare two strings
+ * @s1_es: first string
+ * @s2_es: second string
+ * @n: number of bytes to be compared
+ * Return: difference between the two strings
+ */
+int _strncmp(const char *s1_es, const char *s2_es, size_t n)
+{
+	while (n > 0)
+	{
+		if (*s1_es == '\0' && *s2_es == '\0')
+		{
+			return (0);
+		}
+		else if (*s1_es == *s2_es)
+		{
+			s1_es++;
+			s2_es++;
+			n--;
+		}
+		else
+		{
+			return (*s1_es - *s2_es);
+		}
+	}
+	return (0);
+}
+
+/**
+ * _isspace - checks for white space characters
+ * @c: character to be checked
+ * Return: 1 if c is a white-space character, 0 otherwise
+ */
+bool _isspace(int c)
+{
+	return (c == ' ' || c == '\t' || c == '\n' ||
+			c == '\v' || c == '\f' || c == '\r');
 }

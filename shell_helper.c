@@ -1,49 +1,4 @@
 #include "main.h"
-#include "getline.h"
-
-/**
- * printerror - prints error message
- * @av_es: name of the program
- * @count: number of commands entered
- * @arg_es: command entered
- * Return: void
- */
-void printerror(char **av_es, int count, char **arg_es)
-{
-	write(STDERR_FILENO, av_es[0], _strlen(av_es[0]));
-	write(STDERR_FILENO, ": ", 2);
-	write_error_stderr(count);
-	write(STDERR_FILENO, ": ", 2);
-	write(STDERR_FILENO, arg_es[0], _strlen(arg_es[0]));
-	write(STDERR_FILENO, ": not found\n", 12);
-}
-
-/**
- * prompt - prompts the user for input
- * @buf_es: buffer to store input
- * Return: number of bytes read
- */
-int prompt(char **buf_es)
-{
-	ssize_t nread = 0;
-	size_t size = 0;
-	int is_interactive = isatty(STDIN_FILENO);
-
-	if (is_interactive != 0)
-		write(STDOUT_FILENO, "my_shell$ ", 10);
-	nread = my_getline(buf_es, &size, stdin);
-		return (nread);
-}
-
-/**
- * handle_ctrl_c - handles ctrl + c signal
- * @sig: signal
- */
-void handle_ctrl_c(int sig __attribute__((unused)))
-{
-	write(1, "\nmy_shell$ ", 12);
-	signal(SIGINT, handle_ctrl_c);
-}
 
 /**
  * free_all - frees all memory
@@ -66,10 +21,66 @@ void free_all(const unsigned int n, ...)
 }
 
 /**
- * free_arg - frees an arraynof strings
- * @arr: array of strings
+ * init_prmpt - initialize the shell prompt
+ * @av: argument vector
+ * @ac: argument counter
+ * Return: pointer to the calling function
  */
-void free_arg(char **arr)
+store_info_t *init_prmpt(char **av, int ac)
 {
-	free(arr);
+	static store_info_t my_info;
+
+	my_info.argv = av;
+	my_info.argc = ac;
+	my_info.fileno = STDIN_FILENO;
+
+	if (ac > 1)
+	{
+		my_info.file = av[1];
+		my_info.fileno = open(my_info.file, O_RDONLY);
+
+		if (my_info.fileno == -1)
+		{
+			printerror(av, my_info.error, ac);
+			my_info.status = 127;
+		}
+	}
+	my_info.interactive = isatty(my_info.fileno);
+
+	return (&my_info);
+}
+
+/**
+ * read_usr_input - Read user input and process it
+ * @input_info: a pointer to a structure containing infoemation about the input
+ *
+ * Return: a dynamically allocated string containing the user's input;
+ * or NULL if there was an error or if the user entered no input
+ */
+bool read_usr_input(store_info_t *input_info)
+{
+	char *temp = NULL, *line = NULL;
+
+	if (input_info->interactive)
+		write(STDIN_FILENO, "shell$: ", 9);
+	input_info->line_read += 1;
+
+	while (process_usr_input(&input_info->line, input_info->fileno) &
+			(QUOTE_DOUBLE | QUOTE_SINGLE | QUOTE_ESCAPE))
+	{
+		temp = line;
+		line = str_concat(NULL, "", temp, input_info->line);
+		free_all(2, temp, input_info->line);
+		if (input_info->interactive)
+			write(STDIN_FILENO, "shell$: ", 9);
+		input_info->line_read += 1;
+	}
+
+	if (line)
+	{
+		temp = input_info->line;
+		input_info->line = str_concat(NULL, "", line, temp);
+		free_all(2, temp, line);
+	}
+	return (input_info->line);
 }

@@ -1,117 +1,103 @@
 #include "main.h"
 
 /**
- * _strcat - concatenates two strings
- * @dest_a: destination sting
- * @src: source string
- * Return: pointer to the resulting string destination
+ * _strdup - duplicates a string
+ * @str: string to duplicate
+ * Return: pointer to the new string
  */
-char *_strcat(char *dest_a, const char *src)
+char *_strdup(char *str)
 {
-	int e, length = _strlen(dest_a);
+	char *new_str = NULL;
+	int i, len;
 
-	for (e = 0; src[e] != '\0'; e++)
-		dest_a[length + e] = src[e];
-	dest_a[length + e] = src[e];
-	return (dest_a);
+	if (str == NULL)
+		return (NULL);
+	len = _strlen(str);
+	new_str = malloc(sizeof(char) * (len + 1));
+
+	if (new_str == NULL)
+		return (NULL);
+
+	for (i = 0; str[i] != '\0'; i++)
+		new_str[i] = str[i];
+	new_str[i] = '\0';
+
+	return (new_str);
 }
 
 /**
- * _putenv - adds or changes the value of an environment variables
- * @string: string of the form name=value
- * Return: 0 on success, 1 on failure
+ * _strstr - locates a substring
+ * @haystack: string to search
+ * @needle: substring to search forb
+ * Return: pointer to the beginning of the located substring
  */
-int _putenv(char *string)
+char *_strstr(const char *haystack, const char *needle)
 {
-	int y;
-	char *delimeter, **new_environ;
+	int i, j, k;
 
-	delimeter = _strchr(string, '=');
-	if (string == NULL || delimeter == NULL || delimeter == string)
+	for (j = 0, k = i; needle[j] != '\0'; i++)
 	{
-		write(STDERR_FILENO, "Error: invalid argument\n", 24);
-		return (1);
-	}
-	for (y = 0; environ[y] != NULL; y++)
-	{
-		if (_strncmp(string, environ[y], delimeter - string + 1) == 0)
+		for (j = 0, k = i; needle[j] != '\0'; j++, k++)
 		{
-			environ[y] = string;
-			return (0);
+			if (needle[j] != haystack[k] || haystack[k] == '\0')
+				break;
 		}
+
+		if (needle[j] == '\0')
+			return ((char *)haystack + i);
 	}
-	while (environ[y] != NULL)
-		y++;
-	new_environ = malloc(sizeof(char *) * (y + 2));
-	if (new_environ == NULL)
-	{
-		perror("malloc");
-		return (1);
-	}
-	for (y = 0; environ[y] != NULL; y++)
-		new_environ[y] = environ[y];
-	new_environ[y] = string;
-	new_environ[y + 1] = NULL;
-	environ = new_environ;
-	return (0);
+	return (NULL);
 }
 
 /**
- * _strcmp - function that compare two string
- * @s1: The first string to compare
- * @s2: The second string to compare
- * Return: s1 - s2
+ * _memcpy - memory copy function
+ * @dest: destination
+ * @src: source
+ * @n: size
+ * Return: void
  */
-int _strcmp(char *s1, char *s2)
+void *_memcpy(void *dest, const void *src, size_t n)
 {
-	int e;
+	unsigned char *destination = dest;
+	const unsigned char *source = src;
+	size_t iterator;
 
-	for (e = 0; s1[e] && s2[e]; e++)
+	if (dest && src)
 	{
-		if (s1[e] != s2[e])
+		for (iterator = 0; iterator < n; iterator++)
 		{
-			return (s1[e] - s2[e]);
+			*destination++ = *source++;
 		}
+		return (dest);
 	}
-	return (s1[e] - s2[e]);
 }
 
 /**
- * _strncmp - compare two strings
- * @s1_es: first string
- * @s2_es: Second string
- * @n: number of bytes to be compared
- * Return: difference between the two strings
+ * _realloc - reallocates buffer
+ * @buffer: pointer to buffer
+ * @old_size: old size
+ * @new_size: new size
+ * Return: new memory
  */
-int _strncmp(const char *s1_es, const char *s2_es, size_t n)
+void *_realloc(void *buffer, size_t old_size, size_t new_size)
 {
-	while (n > 0)
+	void *new_buff = NULL;
+
+	if (buffer)
 	{
-		if (*s1_es == '\0' && *s2_es == '\0')
+		if (new_size)
 		{
-			return (0);
-		}
-		else if (*s1_es == *s2_es)
-		{
-			s1_es++;
-			s2_es++;
-			n--;
+			new_buff = malloc(new_size);
+			if (new_buff)
+			{
+				_memcpy(new_buff, buffer, new_size > old_size ? new_size : old_size);
+				free_all(1, buffer);
+			}
 		}
 		else
 		{
-			return (*s1_es - *s2_es);
+			free_all(1, buffer);
 		}
 	}
-	return (0);
-}
-
-/**
- * _isspace - checks for white space characters
- * @c: character to be checked
- * Return: 1 if c is a white-space character, 0 otherwise
-*/
-int _isspace(int c)
-{
-	return (c == ' ' || c == '\t' || c == '\n' ||
-			c == '\v' || c == '\f' || c == '\r');
+	return (new_buff);
 }

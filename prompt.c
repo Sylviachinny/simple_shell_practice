@@ -2,43 +2,36 @@
 #include "getline.h"
 
 /**
- * main - main function
- * @argc_es: number of arguments
- * @av_es: arguments
- * @__attribute__((unused)): unused  variable
- * Return: 0 on success, 1 on failure
+ * main - Entry point
+ * @argc: argument count
+ * @argv: argument vector
+ * Return: 0
  */
-int main(int argc_es __attribute__((unused)), char **av_es)
+
+int main(int argc, char **argv)
 {
-	int count = 0, status, ret_val;
-	pid_t child;
-
-	signal(SIGINT, handle_ctrl_c);
-
-	while (1)
+	if (argc != 2)
 	{
-		ret_val = simple_shell_loop(av_es, count);
-		if (ret_val == 2)
-		{
-			count++;
-			child = fork();
-
-			if (child == -1)
-			{
-				perror("Error");
-				exit(EXIT_FAILURE);
-			}
-			else if (child != 0)
-			{
-				wait(&status);
-				return (127);
-			}
-			else
-				continue;
-		}
-		if (ret_val != 0)
-			break;
-		count++;
+		fprintf(stderr, "usage: %s <filename>\n", argv[0]);
+		return (1);
 	}
+
+	int fd = open(argv[1], O_RDONLY);
+
+	if (fd == -1)
+	{
+		perror("Error opening file");
+		return (1);
+	}
+
+	char *line;
+
+	while ((line = my_getline(fd)) != NULL)
+	{
+		printf("%s", line); /*print each line*/
+		free(line);  /*Don't forget to free the memory allocated by my_getline*/
+	}
+
+	close(fd); /*close the file descriptor when done*/
 	return (0);
 }
