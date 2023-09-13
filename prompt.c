@@ -1,37 +1,20 @@
 #include "main.h"
 #include "getline.h"
 
-/**
- * main - Entry point
- * @argc: argument count
- * @argv: argument vector
- * Return: 0
- */
 
-int main(int argc, char **argv)
-{
-	if (argc != 2)
-	{
-		fprintf(stderr, "usage: %s <filename>\n", argv[0]);
-		return (1);
-	}
+int main() {
+    char cmd[] = "This is 'a; test' with\\n escape; sequences";
+    size_t count = cmd_to_split(cmd), i;
+    char *token = cmd;
 
-	int fd = open(argv[1], O_RDONLY);
+    printf("Number of tokens: %lu\n", count);
 
-	if (fd == -1)
-	{
-		perror("Error opening file");
-		return (1);
-	}
+    /*Print each token*/
+    for (i = 0; i < count; i++) {
+        printf("Token %lu: '%s'\n", i + 1, token);
+        /*Move to the next token (if any)*/
+        token += _strlen(token) + 1;
+    }
 
-	char *line;
-
-	while ((line = my_getline(fd)) != NULL)
-	{
-		printf("%s", line); /*print each line*/
-		free(line);  /*Don't forget to free the memory allocated by my_getline*/
-	}
-
-	close(fd); /*close the file descriptor when done*/
-	return (0);
+    return 0;
 }

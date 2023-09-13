@@ -35,7 +35,7 @@ char *_strstr(const char *haystack, const char *needle)
 {
 	int i, j, k;
 
-	for (j = 0, k = i; needle[j] != '\0'; i++)
+	for (i = 0; haystack[i] != '\0'; i++)
 	{
 		for (j = 0, k = i; needle[j] != '\0'; j++, k++)
 		{
@@ -70,6 +70,7 @@ void *_memcpy(void *dest, const void *src, size_t n)
 		}
 		return (dest);
 	}
+	return (NULL);
 }
 
 /**

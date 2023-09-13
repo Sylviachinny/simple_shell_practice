@@ -44,7 +44,7 @@ size_t quote_str_len(const char *str, quote_state state)
  */
 quote_state process_usr_input(char **line_input, int fd)
 {
-	char *line = my_getline(fd), *line_input = line;
+	char *line = *line_input = my_getline(fd);
 	static quote_state state = QUOTE_NONE; /*maintain state across function calls*/
 	size_t index = 0;
 
@@ -63,7 +63,7 @@ quote_state process_usr_input(char **line_input, int fd)
 						index += 1;
 					/*fall-through*/
 					default:
-					state = quote_factory(line[index]);
+					state = quote_proc(line[index]);
 					if (state & (QUOTE_DOUBLE | QUOTE_SINGLE | QUOTE_ESCAPE))
 						index += 1;
 				}

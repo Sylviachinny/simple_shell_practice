@@ -47,7 +47,7 @@ static char *_getline_append(buff_s *buff, char **line, size_t *size, size_t n)
  */
 static buff_s *_getline_buff(buf_node_table *table, const int fd)
 {
-	buff_hash_tables_t *node = NULL;
+	buff_hash_table_t *node = NULL;
 	size_t hsh_index = fd % BUFF_TABLE_SIZE;
 
 	if (table)
@@ -118,18 +118,17 @@ char *my_getline(const int fd)
 				else
 				{
 					if (_getline_append(buff_se, &line, &size, endOfLine + 1))
-						buff_se->next += endOfLine + 1;
+						buff_se->next += endOfLine + 1, buff_se->left_proc -= endOfLine + 1;
 					break;
 				}
 			}
-		}
-	}
-	while ((numRead = read(fd, buff_se->buffer, BUFFER_SIZE)) > 0)
+		} while ((numRead = read(fd, buff_se->buffer, BUFFER_SIZE)) > 0);
 		if (numRead == -1)
 		{
 			free_all(1, line);
 			line = NULL;
 			size = 0;
 		}
+	}
 	return (line);
 }

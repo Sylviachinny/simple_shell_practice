@@ -10,7 +10,7 @@
 void printerror(char **av, int count, char **arg)
 {
 	write(STDERR_FILENO, av[0], _strlen(av[0]));
-	write(STDERR_FILENO, ": "., 2);
+	write(STDERR_FILENO, ":", 2);
 	write_error_stderr(count);
 	write(STDERR_FILENO, ": ", 2);
 	write(STDERR_FILENO, arg[0], _strlen(arg[0]));

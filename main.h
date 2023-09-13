@@ -10,6 +10,7 @@
 #include <syslog.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include "getline.h"
 
 /**STRING PROTOTYPES**/
 char *_strcat(char *dest, const char *src);
@@ -23,15 +24,14 @@ void *_memcpy(void *dest, const void *src, size_t n);
 void *_realloc(void *buffer, size_t old_size, size_t new_size);
 size_t _strlen(const char *s);
 char *_strcpy(char *dest, const char *src);
+bool _isquote(int c);
 
 /**SHELL ERROR**/
-void printerror(char **av, int count, char **arg);
+/*void printerror(char **av, int count, char **arg);*/
 int write_error_stderr(int error);
 
 /**SHELL HELPER**/
 void free_all(const unsigned int n, ...);
-store_info_t *init_prmpt(char **av, int ac);
-bool read_usr_input(store_info_t *input_info);
 
 /**
  * store_info - store shell information
@@ -84,7 +84,9 @@ size_t quote_escape(const char *str, quote_state *state);
 size_t quote_none(const char *str, quote_state *state);
 size_t quote_word(const char *str, quote_state *state);
 size_t quote_str_len(const char *str, quote_state state);
-
+store_info_t *init_prmpt(char **av, int ac);
+bool read_usr_input(store_info_t *input_info);
+quote_state process_usr_input(char **line_input, int fd);
 /******STRING******/
 char *str_concat(size_t *len, const char *delim,
 		const char *prev, const char *next);
